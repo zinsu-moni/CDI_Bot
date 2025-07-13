@@ -9,6 +9,10 @@ import json
 import subprocess
 import sys
 import shutil
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 class CropIdentifierApp:
     def __init__(self, root):
@@ -16,9 +20,14 @@ class CropIdentifierApp:
         self.root.title("Crop Identifier")
         self.root.geometry("800x600")
         
-        # API Details
-        self.api_url = "https://crop.kindwise.com/api/v1/identification"
-        self.api_key = "u12lFbhGXOPacNJgi4pqK2scNsm34OryIiw99IIPJLKzjgntD5"  # Your API key
+        # API Details from environment variables
+        self.api_url = os.getenv("KINDWISE_API_URL", "https://crop.kindwise.com/api/v1/identification")
+        self.api_key = os.getenv("KINDWISE_API_KEY")
+        
+        if not self.api_key:
+            messagebox.showerror("Configuration Error", 
+                               "KindWise API key not found in environment variables.\n"
+                               "Please set KINDWISE_API_KEY in your .env file.")
         
         # Create UI elements
         self.create_widgets()
@@ -96,7 +105,7 @@ class CropIdentifierApp:
             return
         
         if not self.api_key:
-            self.update_result("Error: API Key not provided. Please set your API key in the code.")
+            self.update_result("Error: API Key not configured. Please set KINDWISE_API_KEY in your .env file.")
             return
         
         self.update_result("Analyzing image...\n")

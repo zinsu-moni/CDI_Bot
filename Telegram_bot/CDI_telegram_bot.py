@@ -82,47 +82,47 @@ def build_summary(result):
     crops = result.get("crops", [])
     diseases = result.get("diseases", [])
     
-    # Build a more detailed and structured summary
-    summary = "🔬 **CROP DISEASE ANALYSIS RESULTS**\n\n"
+    # Build a clean and readable summary
+    summary = "CROP DISEASE ANALYSIS RESULTS\n" + "="*40 + "\n\n"
     
     if crops:
-        summary += "🌾 **IDENTIFIED CROPS:**\n"
+        summary += "IDENTIFIED CROPS:\n"
         for i, crop in enumerate(crops[:3], 1):  # Limit to top 3 for clarity
             confidence = crop.get('confidence', 0)
             name = crop.get('name', 'Unknown')
             scientific_name = crop.get('scientific_name', '')
             
-            confidence_emoji = "🟢" if confidence > 80 else "🟡" if confidence > 60 else "🔴"
-            summary += f"{i}. {confidence_emoji} **{name}**"
+            confidence_level = "HIGH" if confidence > 80 else "MEDIUM" if confidence > 60 else "LOW"
+            summary += f"{i}. {name}"
             if scientific_name:
-                summary += f" (*{scientific_name}*)"
-            summary += f" - {confidence}% confidence\n"
+                summary += f" ({scientific_name})"
+            summary += f" - {confidence}% confidence ({confidence_level})\n"
         summary += "\n"
     
     if diseases:
-        summary += "⚠️ **DETECTED DISEASES/ISSUES:**\n"
+        summary += "DETECTED DISEASES/ISSUES:\n"
         for i, disease in enumerate(diseases[:3], 1):  # Limit to top 3
             confidence = disease.get('confidence', 0)
             name = disease.get('name', 'Unknown')
             
-            severity_emoji = "🔴" if confidence > 80 else "🟠" if confidence > 60 else "🟡"
-            summary += f"{i}. {severity_emoji} **{name}** - {confidence}% confidence\n"
+            severity_level = "HIGH" if confidence > 80 else "MEDIUM" if confidence > 60 else "LOW"
+            summary += f"{i}. {name} - {confidence}% confidence ({severity_level} risk)\n"
         summary += "\n"
     
     if not crops and not diseases:
-        summary += "❓ **No clear crop or disease identification found.**\n"
+        summary += "No clear crop or disease identification found.\n"
         summary += "Please ensure the image shows:\n"
-        summary += "• Clear view of the plant/crop\n"
-        summary += "• Good lighting conditions\n"
-        summary += "• Focus on affected areas if disease is suspected\n\n"
+        summary += "- Clear view of the plant/crop\n"
+        summary += "- Good lighting conditions\n"
+        summary += "- Focus on affected areas if disease is suspected\n\n"
     
     # Add context for better AI analysis
-    summary += "📋 **FOR DETAILED ANALYSIS:**\n"
+    summary += "FOR DETAILED ANALYSIS:\n"
     summary += "Please provide additional information if available:\n"
-    summary += "• Your location/climate zone\n"
-    summary += "• Recent weather conditions\n"
-    summary += "• When symptoms first appeared\n"
-    summary += "• Any treatments already applied\n"
+    summary += "- Your location/climate zone\n"
+    summary += "- Recent weather conditions\n"
+    summary += "- When symptoms first appeared\n"
+    summary += "- Any treatments already applied\n"
     
     return summary.strip()
 
@@ -156,12 +156,15 @@ IMPORTANT GUIDELINES:
 6. Include timing recommendations (when to apply treatments)
 7. Suggest monitoring practices to track progress
 8. Keep responses focused on agriculture - avoid unrelated topics
+9. Use simple, clear language without excessive formatting characters
 
 Format your responses clearly with:
-🔬 **Diagnosis**: What the problem is
-💊 **Treatment**: Immediate actions to take  
-🛡️ **Prevention**: How to avoid future issues
-📅 **Timeline**: When to apply treatments and expect results"""
+DIAGNOSIS: What the problem is
+TREATMENT: Immediate actions to take  
+PREVENTION: How to avoid future issues
+TIMELINE: When to apply treatments and expect results
+
+Avoid using markdown formatting, emojis, or special characters. Keep it simple and readable."""
 
         response = text_ai.chat.completions.create(
             model=TEXT_AI_MODEL,
@@ -187,27 +190,27 @@ Format your responses clearly with:
 # ====== HANDLERS ======
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    welcome_message = """🌿 **Welcome to the Crop Disease Detection & Agricultural Assistant Bot!**
+    welcome_message = """Welcome to the Crop Disease Detection & Agricultural Assistant Bot!
 
-🔬 **What I can help you with:**
-• **Disease Diagnosis** - Send crop photos for disease identification
-• **Treatment Plans** - Get specific treatment recommendations  
-• **Prevention Advice** - Learn how to prevent crop diseases
-• **Agricultural Guidance** - Ask any farming or crop-related questions
+What I can help you with:
+- Disease Diagnosis - Send crop photos for disease identification
+- Treatment Plans - Get specific treatment recommendations  
+- Prevention Advice - Learn how to prevent crop diseases
+- Agricultural Guidance - Ask any farming or crop-related questions
 
-📸 **For best results when sending photos:**
-• Take clear, well-lit images of affected plants
-• Focus on diseased areas or symptoms
-• Include context about your location and growing conditions
+For best results when sending photos:
+- Take clear, well-lit images of affected plants
+- Focus on diseased areas or symptoms
+- Include context about your location and growing conditions
 
-💡 **Ask me questions like:**
-• "How do I treat leaf blight in tomatoes?"
-• "What's the best fertilizer schedule for corn?"
-• "How can I prevent fungal infections?"
+Ask me questions like:
+"How do I treat leaf blight in tomatoes?"
+"What's the best fertilizer schedule for corn?"
+"How can I prevent fungal infections?"
 
-🚀 **Ready to help improve your crop health!**"""
+Ready to help improve your crop health!"""
 
-    await update.message.reply_text(welcome_message, parse_mode="Markdown")
+    await update.message.reply_text(welcome_message)
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -283,8 +286,8 @@ Please be specific with product names, application rates, and timing when possib
         await update.message.reply_text("🤖 Getting expert agricultural analysis...")
         ai_response = await query_text_model(context_prompt)
 
-        # Reply to user
-        await update.message.reply_text(ai_response, parse_mode="Markdown")
+        # Reply to user (removed markdown parsing to avoid formatting issues)
+        await update.message.reply_text(ai_response)
         
     except Exception as e:
         await update.message.reply_text(f"❌ Unexpected error: {e}")
@@ -335,39 +338,39 @@ Focus on practical, actionable advice that helps improve crop health and farming
 
         ai_response = await query_text_model(general_prompt)
     
-    await update.message.reply_text(ai_response, parse_mode="Markdown")
+    await update.message.reply_text(ai_response)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    help_message = """🆘 **Crop Disease Detection Bot - Help Guide**
+    help_message = """Crop Disease Detection Bot - Help Guide
 
-📸 **Photo Analysis:**
-• Send clear crop/plant photos
-• Include affected areas and symptoms
-• Add context: location, weather, timing
-• Get disease identification + treatment plans
+Photo Analysis:
+- Send clear crop/plant photos
+- Include affected areas and symptoms
+- Add context: location, weather, timing
+- Get disease identification + treatment plans
 
-❓ **Ask Questions About:**
-• Disease treatment and prevention
-• Fertilizer and nutrient management  
-• Pest control strategies
-• Crop rotation and planning
-• Soil health improvement
-• Organic vs chemical solutions
+Ask Questions About:
+- Disease treatment and prevention
+- Fertilizer and nutrient management  
+- Pest control strategies
+- Crop rotation and planning
+- Soil health improvement
+- Organic vs chemical solutions
 
-💡 **Pro Tips:**
-• Mention your crop type and growth stage
-• Include recent weather conditions
-• Specify if you've tried any treatments
-• Ask about timing for best results
+Pro Tips:
+- Mention your crop type and growth stage
+- Include recent weather conditions
+- Specify if you've tried any treatments
+- Ask about timing for best results
 
-🎯 **Example Questions:**
+Example Questions:
 "My tomato leaves have brown spots, what should I do?"
 "Best time to apply fungicide to wheat?"
 "How to improve soil for corn planting?"
 
-🔄 **Follow-up**: After photo analysis, ask specific questions for detailed guidance!"""
+Follow-up: After photo analysis, ask specific questions for detailed guidance!"""
 
-    await update.message.reply_text(help_message, parse_mode="Markdown")
+    await update.message.reply_text(help_message)
 
 # ====== ERROR HANDLER ======
 
