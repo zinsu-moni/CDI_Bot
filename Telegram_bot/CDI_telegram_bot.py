@@ -13,9 +13,7 @@ from telegram.ext import (
 )
 from telegram.error import TimedOut, NetworkError, BadRequest
 from openai import OpenAI
-from dotenv import load_dotenv
-
-# Load environment variables
+from dotenv import load_doten
 load_dotenv()
 
 print("🔍 Debug: Environment variables loaded")
